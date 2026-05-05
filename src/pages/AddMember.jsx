@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../Api";
 
 function AddMember() {
   const navigate = useNavigate();
@@ -8,7 +9,12 @@ function AddMember() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("");
+  const [groupId, setGroupId] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   const validate = () => {
     const newErrors = {};
@@ -23,6 +29,22 @@ function AddMember() {
       newErrors.email = "Email is not valid";
     }
 
+    if (!groupId.trim()) {
+      newErrors.groupId = "Group ID is required";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm the password";
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
     if (!role) {
       newErrors.role = "Please select a role";
     }
@@ -31,18 +53,35 @@ function AddMember() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerError("");
 
     if (!validate()) {
       return;
     }
 
-    const memberData = { fullName, email, phone, role };
-    console.log("New member:", memberData);
+    const memberData = {
+      full_name: fullName,
+      email,
+      phone,
+      role,
+      group_id: groupId,
+      password,
+    };
 
-    alert("Member added (demo). Later this will save to the database.");
-    navigate("/members");
+    try {
+      setLoading(true);
+      await API.post("/members", memberData);
+      alert("Member added successfully!");
+      navigate("/members");
+    } catch (error) {
+      setServerError(
+        error.response?.data?.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,7 +91,24 @@ function AddMember() {
         <span>Enroll a new member into your motshelo group</span>
       </div>
 
+      {serverError && (
+        <p style={{ color: "red", marginBottom: "10px" }}>{serverError}</p>
+      )}
+
       <form onSubmit={handleSubmit} noValidate>
+
+        <label htmlFor="groupId">Group ID</label>
+        <input
+          id="groupId"
+          type="text"
+          value={groupId}
+          onChange={(e) => setGroupId(e.target.value)}
+          placeholder="Enter the group ID"
+        />
+        {errors.groupId && (
+          <small style={{ color: "red" }}>{errors.groupId}</small>
+        )}
+
         <label htmlFor="fullName">Full Name</label>
         <input
           id="fullName"
@@ -81,6 +137,7 @@ function AddMember() {
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          placeholder="Optional"
         />
 
         <label htmlFor="role">Role</label>
@@ -97,7 +154,33 @@ function AddMember() {
           <small style={{ color: "red" }}>{errors.role}</small>
         )}
 
-        <button type="submit">Save Member</button>
+        <label htmlFor="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Min 6 characters"
+        />
+        {errors.password && (
+          <small style={{ color: "red" }}>{errors.password}</small>
+        )}
+
+        <label htmlFor="confirmPassword">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+        {errors.confirmPassword && (
+          <small style={{ color: "red" }}>{errors.confirmPassword}</small>
+        )}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Save Member"}
+        </button>
+
       </form>
     </section>
   );

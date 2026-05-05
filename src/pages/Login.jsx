@@ -6,11 +6,9 @@ function Login() {
   const navigate = useNavigate();
 
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
@@ -27,7 +25,7 @@ function Login() {
   const handleLogin = async () => {
     setServerError("");
 
-    if (!username || !password) {
+    if (!email || !password) {
       setServerError("Please fill in all fields");
       return;
     }
@@ -35,17 +33,15 @@ function Login() {
     try {
       setLoading(true);
       const response = await API.post("/auth/login", {
-        username,
+        email,
         password,
       });
 
-      // Save token so Api.js can attach it to future requests
       localStorage.setItem("token", response.data.token);
-
       navigate("/dashboard");
     } catch (error) {
       setServerError(
-        error.response?.data?.message || "Invalid username or password."
+        error.response?.data?.message || "Invalid email or password."
       );
     } finally {
       setLoading(false);
@@ -55,7 +51,7 @@ function Login() {
   const handleCreateAccount = async () => {
     setServerError("");
 
-    if (!username || !email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       setServerError("Please fill in all fields");
       return;
     }
@@ -68,14 +64,12 @@ function Login() {
     try {
       setLoading(true);
       await API.post("/auth/register", {
-        username,
         email,
         password,
       });
 
-      alert("Account created successfully!");
+      alert("Account created! Please log in.");
       setIsCreatingAccount(false);
-      setUsername("");
       setPassword("");
       setEmail("");
       setConfirmPassword("");
@@ -88,6 +82,13 @@ function Login() {
     }
   };
 
+  const resetForm = () => {
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setServerError("");
+  };
+
   return (
     <div style={{
       height: "100vh",
@@ -96,7 +97,6 @@ function Login() {
       justifyContent: "center",
       alignItems: "center"
     }}>
-
       <div style={{
         background: "white",
         padding: "35px",
@@ -116,28 +116,18 @@ function Login() {
           </p>
         )}
 
+        {/* Email - always shown */}
         <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           style={inputStyle}
           onFocus={(e) => e.target.style.border = "1px solid #3b82f6"}
           onBlur={(e) => e.target.style.border = "1px solid #cbd5f5"}
         />
 
-        {isCreatingAccount && (
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle}
-            onFocus={(e) => e.target.style.border = "1px solid #3b82f6"}
-            onBlur={(e) => e.target.style.border = "1px solid #cbd5f5"}
-          />
-        )}
-
+        {/* Password - always shown */}
         <input
           type="password"
           placeholder="Password"
@@ -148,6 +138,7 @@ function Login() {
           onBlur={(e) => e.target.style.border = "1px solid #cbd5f5"}
         />
 
+        {/* Confirm Password - only when creating account */}
         {isCreatingAccount && (
           <input
             type="password"
@@ -160,6 +151,7 @@ function Login() {
           />
         )}
 
+        {/* Submit Button */}
         <button
           onClick={isCreatingAccount ? handleCreateAccount : handleLogin}
           disabled={loading}
@@ -185,14 +177,11 @@ function Login() {
           }
         </button>
 
+        {/* Toggle between login and register */}
         <button
           onClick={() => {
             setIsCreatingAccount(!isCreatingAccount);
-            setUsername("");
-            setPassword("");
-            setEmail("");
-            setConfirmPassword("");
-            setServerError("");
+            resetForm();
           }}
           style={{
             width: "100%",
@@ -205,7 +194,9 @@ function Login() {
             fontWeight: "bold"
           }}
         >
-          {isCreatingAccount ? "Already have an account? Login" : "Don't have an account? Create one"}
+          {isCreatingAccount
+            ? "Already have an account? Login"
+            : "Don't have an account? Create one"}
         </button>
 
         <button
@@ -225,7 +216,6 @@ function Login() {
         </button>
 
       </div>
-
     </div>
   );
 }

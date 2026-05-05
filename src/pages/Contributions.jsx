@@ -145,4 +145,36 @@ function Contributions() {
 
         <label htmlFor="status">Status</label>
         <select
-          id="status
+          id="status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+        >
+          <option value="pending">Pending</option>
+          <option value="paid">Paid</option>
+          <option value="missed">Missed</option>
+        </select>
+        {errors.status && (
+          <small style={{ color: "red" }}>{errors.status}</small>
+        )}
+
+        <label htmlFor="proofOfPayment">Proof of Payment</label>
+        <input
+          id="proofOfPayment"
+          type="file"
+          accept="image/*,application/pdf"
+          onChange={handleFileChange}
+        />
+        <small style={{ color: "#6b7280" }}>
+          Optional — upload a screenshot or PDF receipt
+        </small>
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Recording..." : "Record Contribution"}
+        </button>
+
+      </form>
+    </section>
+  );
+}
+
+export default Contributions;

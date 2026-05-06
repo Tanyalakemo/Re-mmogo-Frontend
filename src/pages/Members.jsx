@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../Api";
 
 function Members() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [members, setMembers]     = useState([]);
+  const [loading, setLoading]     = useState(false);
   const [serverError, setServerError] = useState("");
-  const [groupId, setGroupId] = useState("");
-  const [searched, setSearched] = useState(false);
+  const [groupId, setGroupId]     = useState("");
+  const [searched, setSearched]   = useState(false);
 
   const fetchMembers = async (gId) => {
-    if (!gId) return;
     try {
       setLoading(true);
       setServerError("");
@@ -18,9 +17,7 @@ function Members() {
       setMembers(response.data);
       setSearched(true);
     } catch (error) {
-      setServerError(
-        error.response?.data?.error || "Failed to load members. Please try again."
-      );
+      setServerError(error.response?.data?.error || "Failed to load members.");
     } finally {
       setLoading(false);
     }
@@ -28,10 +25,7 @@ function Members() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!groupId.trim()) {
-      setServerError("Please enter a Group ID");
-      return;
-    }
+    if (!groupId.trim()) { setServerError("Please enter a Group ID"); return; }
     fetchMembers(groupId);
   };
 
@@ -42,16 +36,13 @@ function Members() {
           <h2>Group Members</h2>
           <span>Enroll and manage members in your motshelo group</span>
         </div>
-        <p style={{ marginBottom: "12px" }}>
-          Enter your Group ID to view all registered members.
-        </p>
 
         <form onSubmit={handleSearch} style={{ display: "flex", gap: "10px", marginBottom: "12px" }}>
           <input
             type="text"
             value={groupId}
             onChange={(e) => setGroupId(e.target.value)}
-            placeholder="Enter Group ID"
+            placeholder="Enter Group ID to search"
             style={{ padding: "10px", borderRadius: "8px", border: "1px solid #cbd5f5", flex: 1 }}
           />
           <button type="submit" disabled={loading}>
@@ -59,9 +50,7 @@ function Members() {
           </button>
         </form>
 
-        <Link to="/members/add" className="button-link">
-          + Add Member
-        </Link>
+        <Link to="/members/add" className="button-link">+ Add Member</Link>
       </section>
 
       <section className="table-container">
@@ -72,11 +61,9 @@ function Members() {
 
         {serverError && <p style={{ color: "red" }}>{serverError}</p>}
         {loading && <p>Loading members...</p>}
-
         {!loading && searched && members.length === 0 && !serverError && (
           <p>No members found for this group.</p>
         )}
-
         {!loading && members.length > 0 && (
           <table>
             <thead>

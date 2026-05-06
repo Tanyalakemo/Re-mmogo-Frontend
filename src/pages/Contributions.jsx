@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import API from "../Api";
 
 function Contributions() {
-  const [memberId, setMemberId]   = useState("");
-  const [groupId, setGroupId]     = useState("");
-  const [amount, setAmount]       = useState("1000");
-  const [month, setMonth]         = useState("");
-  const [status, setStatus]       = useState("pending");
+  const [memberId, setMemberId] = useState("");
+  const [groupId, setGroupId]   = useState("");
+  const [amount, setAmount]     = useState("1000");
+  const [month, setMonth]       = useState("");
+  const [status, setStatus]     = useState("pending");
   const [contributions, setContributions] = useState([]);
-  const [errors, setErrors]       = useState({});
-  const [loading, setLoading]     = useState(false);
+  const [errors, setErrors]     = useState({});
+  const [loading, setLoading]   = useState(false);
   const [fetchLoading, setFetchLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
-  const [successMsg, setSuccessMsg]   = useState("");
+  const [serverError, setServerError]   = useState("");
+  const [successMsg, setSuccessMsg]     = useState("");
 
   const validate = () => {
     const newErrors = {};
@@ -30,7 +30,6 @@ function Contributions() {
     setServerError("");
     setSuccessMsg("");
     if (!validate()) return;
-
     try {
       setLoading(true);
       await API.post("/contributions", {
@@ -46,7 +45,7 @@ function Contributions() {
       setMonth("");
       setStatus("pending");
     } catch (error) {
-      setServerError(error.response?.data?.error || "Something went wrong. Please try again.");
+      setServerError(error.response?.data?.error || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -92,8 +91,7 @@ function Contributions() {
 
           <label>Amount (P)</label>
           <input type="number" value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            min="0" step="0.01" />
+            onChange={(e) => setAmount(e.target.value)} min="0" step="0.01" />
           {errors.amount && <small style={{ color: "red" }}>{errors.amount}</small>}
 
           <label>Month</label>
@@ -128,12 +126,8 @@ function Contributions() {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Member ID</th>
-                <th>Amount</th>
-                <th>Month</th>
-                <th>Status</th>
-                <th>Date</th>
+                <th>ID</th><th>Member ID</th><th>Amount</th>
+                <th>Month</th><th>Status</th><th>Date</th>
               </tr>
             </thead>
             <tbody>
